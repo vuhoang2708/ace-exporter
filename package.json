@@ -1,0 +1,112 @@
+{
+    "name": "ace-exporter",
+    "displayName": "ACE Exporter",
+    "description": "Antigravity Chat Exporter — exports Codex, Claude and Kiro session logs to Markdown",
+    "version": "1.1.0",
+    "publisher": "antigravity",
+    "engines": {
+        "vscode": "^1.90.0"
+    },
+    "categories": [
+        "Other"
+    ],
+    "activationEvents": [
+        "onStartupFinished"
+    ],
+    "main": "./out/extension.js",
+    "contributes": {
+        "commands": [
+            {
+                "command": "ace.exportChat",
+                "title": "Export Chat Session...",
+                "category": "ACE Exporter"
+            },
+            {
+                "command": "ace.exportLatest",
+                "title": "Export Latest Session (Quick)",
+                "category": "ACE Exporter"
+            },
+            {
+                "command": "ace.openOutputFolder",
+                "title": "Open Output Folder",
+                "category": "ACE Exporter"
+            },
+            {
+                "command": "ace.showStatus",
+                "title": "Show Status",
+                "category": "ACE Exporter"
+            }
+        ],
+        "configuration": {
+            "title": "ACE Exporter",
+            "properties": {
+                "aceExporter.defaultSource": {
+                    "type": "string",
+                    "default": "claude",
+                    "enum": ["claude", "codex", "kiro"],
+                    "description": "Default chat source to pre-select when exporting"
+                },
+                "aceExporter.defaultMode": {
+                    "type": "string",
+                    "default": "clean",
+                    "enum": ["clean", "audit"],
+                    "description": "Default export mode"
+                },
+                "aceExporter.sessionLimit": {
+                    "type": "number",
+                    "default": 50,
+                    "minimum": 5,
+                    "maximum": 500,
+                    "description": "Maximum number of session files to list"
+                },
+                "aceExporter.outputFolder": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Folder to auto-save exported Markdown files. Leave blank to open in untitled tab."
+                },
+                "aceExporter.autoSave": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Automatically save exported file to outputFolder instead of opening as untitled tab"
+                },
+                "aceExporter.toolOutputMaxChars": {
+                    "type": "number",
+                    "default": 2000,
+                    "minimum": 200,
+                    "maximum": 50000,
+                    "description": "Maximum characters of tool output to include in Audit mode. Truncates long outputs."
+                }
+            }
+        },
+        "menus": {
+            "commandPalette": [
+                {
+                    "command": "ace.exportChat"
+                },
+                {
+                    "command": "ace.exportLatest"
+                },
+                {
+                    "command": "ace.openOutputFolder"
+                },
+                {
+                    "command": "ace.showStatus"
+                }
+            ]
+        }
+    },
+    "scripts": {
+        "vscode:prepublish": "npm run bundle",
+        "compile": "tsc -p ./",
+        "watch": "tsc -watch -p ./",
+        "typecheck": "tsc -p ./ --noEmit",
+        "bundle": "node ./esbuild.js",
+        "deploy": "npm run bundle && xcopy /Y out\\extension.js \"%USERPROFILE%\\.vscode\\extensions\\antigravity.ace-exporter-1.1.0\\out\\\" 2>nul || true"
+    },
+    "devDependencies": {
+        "@types/node": "^20.12.7",
+        "@types/vscode": "^1.90.0",
+        "esbuild": "^0.20.2",
+        "typescript": "^5.4.5"
+    }
+}
