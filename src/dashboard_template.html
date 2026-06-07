@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ACE Exporter - AI Conversations Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0a0a0f;
+            --bg-card: rgba(18, 18, 29, 0.6);
+            --bg-card-hover: rgba(26, 26, 41, 0.8);
+            --primary: #8a2be2;
+            --primary-glow: rgba(138, 43, 226, 0.4);
+            --cyber-cyan: #00ffff;
+            --cyber-cyan-glow: rgba(0, 255, 255, 0.3);
+            --neon-pink: #ff007f;
+            --text-main: #f3f3f6;
+            --text-muted: #9a9ab0;
+            --border: rgba(255, 255, 255, 0.08);
+            --border-hover: rgba(255, 255, 255, 0.15);
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-blur: blur(12px);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            min-height: 100vh;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(138, 43, 226, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(0, 255, 255, 0.1) 0%, transparent 40%);
+            background-attachment: fixed;
+        }
+
+        /* Container */
+        .app-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 2rem;
+        }
+
+        @media (max-width: 1024px) {
+            .app-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Header */
+        header {
+            grid-column: 1 / -1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 1rem;
+        }
+
+        .logo-section h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #fff 30%, var(--primary) 70%, var(--cyber-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .logo-section p {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            margin-top: 0.2rem;
+        }
+
+        .stats-summary {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .stat-badge {
+            background: var(--glass-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 0.6rem 1.2rem;
+            text-align: center;
+            backdrop-filter: var(--glass-blur);
+        }
+
+        .stat-badge .val {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--cyber-cyan);
+        }
+
+        .stat-badge .label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            margin-top: 0.2rem;
+        }
+
+        /* Sidebar - Filters */
+        .sidebar {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 1.8rem;
+            height: fit-content;
+            position: sticky;
+            top: 2rem;
+            backdrop-filter: var(--glass-blur);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        .sidebar h2 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-main);
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0.8rem;
+        }
+
+        .filter-group {
+            margin-bottom: 1.8rem;
+        }
+
+        .filter-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.6rem;
+        }
+
+        .source-buttons, .mode-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-select {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            padding: 0.6rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+        }
+
+        .btn-select:hover {
+            border-color: var(--border-hover);
+            color: var(--text-main);
+        }
+
+        .btn-select.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: #fff;
+            box-shadow: 0 0 12px var(--primary-glow);
+        }
+
+        .btn-select.active-cyan {
+            background: var(--cyber-cyan);
+            border-color: var(--cyber-cyan);
+            color: #000;
+            box-shadow: 0 0 12px var(--cyber-cyan-glow);
+        }
+
+        select, input[type="number"], input[type="date"] {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 0.7rem;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.9rem;
+            outline: none;
+            transition: border-color 0.2s ease;
+        }
+
+        select:focus, input:focus {
+            border-color: var(--primary);
+        }
+
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            user-select: none;
+            font-size: 0.9rem;
+        }
+
+        .checkbox-container input {
+            cursor: pointer;
+        }
+
+        /* Main Content */
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        /* Search Bar */
+        .search-area {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.2rem;
+            backdrop-filter: var(--glass-blur);
+        }
+
+        .search-input-wrapper {
+            position: relative;
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .search-input-wrapper input[type="text"] {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 0.8rem 1rem;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .search-input-wrapper input[type="text"]:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 15px rgba(138, 43, 226, 0.2);
+        }
+
+        .advanced-options {
+            margin-top: 1rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            padding-top: 0.8rem;
+            border-top: 1px solid var(--border);
+        }
+
+        /* Conversations Grid */
+        .grid-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .grid-header h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .sessions-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        .session-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            backdrop-filter: var(--glass-blur);
+        }
+
+        .session-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--primary);
+            background: var(--bg-card-hover);
+            box-shadow: 0 8px 24px rgba(138, 43, 226, 0.15);
+        }
+
+        .card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .source-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .tag-claude {
+            background: rgba(138, 43, 226, 0.15);
+            border: 1px solid var(--primary);
+            color: #b172ff;
+        }
+
+        .tag-codex {
+            background: rgba(0, 255, 255, 0.1);
+            border: 1px solid var(--cyber-cyan);
+            color: var(--cyber-cyan);
+        }
+
+        .card-meta-right {
+            display: flex;
+            gap: 0.6rem;
+        }
+
+        .meta-badge {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border);
+            padding: 0.25rem 0.6rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--text-muted);
+        }
+
+        .session-title {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: var(--text-main);
+            word-break: break-all;
+        }
+
+        .session-preview {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .card-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.04);
+            padding-top: 0.8rem;
+            margin-top: 0.3rem;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .card-stats {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .card-stats span {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .card-date {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* In-App Viewer Modal */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal.open {
+            display: flex;
+            opacity: 1;
+        }
+
+        .modal-content {
+            background: #0f0f18;
+            border: 1px solid var(--primary);
+            border-radius: 24px;
+            width: 100%;
+            max-width: 1000px;
+            height: 90vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 50px rgba(138, 43, 226, 0.3);
+            overflow: hidden;
+            animation: modalSlideUp 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        @keyframes modalSlideUp {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-header {
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            word-break: break-all;
+        }
+
+        .modal-close-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .modal-close-btn:hover {
+            background: var(--neon-pink);
+            border-color: var(--neon-pink);
+            color: #fff;
+        }
+
+        .modal-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 2rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #e3e3e9;
+            background: #09090e;
+            white-space: pre-wrap;
+        }
+
+        .modal-footer {
+            padding: 1rem 2rem;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #0f0f18;
+        }
+
+        .highlight {
+            background-color: rgba(255, 255, 0, 0.3);
+            border-bottom: 2px solid yellow;
+            color: #fff;
+            padding: 0 2px;
+            border-radius: 3px;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--text-muted);
+            border: 1px dashed var(--border);
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.01);
+        }
+
+        .empty-state h4 {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-main);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        
+        <!-- Header -->
+        <header>
+            <div class="logo-section">
+                <h1>ACE Exporter</h1>
+                <p>AI Conversations & Logs Analyzer Dashboard</p>
+            </div>
+            <div class="stats-summary">
+                <div class="stat-badge">
+                    <div class="val" id="stat-total">0</div>
+                    <div class="label">Total Sessions</div>
+                </div>
+                <div class="stat-badge">
+                    <div class="val" id="stat-claude">0</div>
+                    <div class="label">Claude</div>
+                </div>
+                <div class="stat-badge">
+                    <div class="val" id="stat-codex">0</div>
+                    <div class="label">Codex</div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Sidebar - Filters -->
+        <aside class="sidebar">
+            <h2>⚙️ Filters & Scopes</h2>
+            
+            <div class="filter-group">
+                <label>AI Source</label>
+                <div class="source-buttons">
+                    <button class="btn-select active" id="btn-src-all" onclick="setSource('all')">All</button>
+                    <button class="btn-select" id="btn-src-claude" onclick="setSource('Claude')">Claude</button>
+                    <button class="btn-select" id="btn-src-codex" onclick="setSource('Codex')">Codex</button>
+                </div>
+            </div>
+
+            <div class="filter-group">
+                <label>Export Mode</label>
+                <div class="mode-buttons">
+                    <button class="btn-select active" id="btn-mode-all" onclick="setMode('all')">All</button>
+                    <button class="btn-select" id="btn-mode-clean" onclick="setMode('Clean')">Clean</button>
+                    <button class="btn-select" id="btn-mode-audit" onclick="setMode('Audit')">Audit</button>
+                </div>
+            </div>
+
+            <div class="filter-group">
+                <label>Sort By</label>
+                <select id="sort-select" onchange="applyFiltersAndSort()">
+                    <option value="date-desc">Date (Newest First)</option>
+                    <option value="date-asc">Date (Oldest First)</option>
+                    <option value="msgs-desc">Messages (Most First)</option>
+                    <option value="size-desc">File Size (Largest First)</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label>Min User Messages</label>
+                <input type="number" id="min-msgs-input" value="0" min="0" oninput="applyFiltersAndSort()">
+            </div>
+
+            <div class="filter-group">
+                <label>Date Range (From)</label>
+                <input type="date" id="date-from-input" onchange="applyFiltersAndSort()">
+            </div>
+
+            <div class="filter-group">
+                <label>Date Range (To)</label>
+                <input type="date" id="date-to-input" onchange="applyFiltersAndSort()">
+            </div>
+        </aside>
+
+        <!-- Main Content Section -->
+        <main class="main-content">
+            
+            <!-- Search Area -->
+            <section class="search-area">
+                <div class="search-input-wrapper">
+                    <input type="text" id="search-input" placeholder="Search by Session ID or preview text..." oninput="debounceSearch()">
+                </div>
+                
+                <div class="advanced-options">
+                    <label class="checkbox-container">
+                        <input type="checkbox" id="chk-fulltext" onchange="applyFiltersAndSort()">
+                        <span>🔍 Deep Full-Text Search</span>
+                    </label>
+                    <label class="checkbox-container">
+                        <input type="checkbox" id="chk-regex" onchange="applyFiltersAndSort()">
+                        <span>⚡ Use Regex Search</span>
+                    </label>
+                    <label class="checkbox-container">
+                        <input type="checkbox" id="chk-case" onchange="applyFiltersAndSort()">
+                        <span>🔠 Case Sensitive</span>
+                    </label>
+                </div>
+            </section>
+
+            <!-- Grid Header -->
+            <div class="grid-header">
+                <h3>Sessions (<span id="filtered-count">0</span> / <span id="total-count">0</span>)</h3>
+            </div>
+
+            <!-- Grid -->
+            <div class="sessions-grid" id="sessions-grid">
+                <!-- Session Cards populated via JS -->
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal Viewer -->
+    <div class="modal" id="viewer-modal" onclick="closeModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <div>
+                    <h2 id="modal-session-title">Session Log Preview</h2>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.2rem;" id="modal-session-subtitle"></p>
+                </div>
+                <button class="modal-close-btn" onclick="closeModal()">✕</button>
+            </div>
+            <div class="modal-body" id="modal-content-body">
+                <!-- Content here -->
+            </div>
+            <div class="modal-footer">
+                <span id="modal-file-size" style="font-size: 0.85rem; color: var(--text-muted);"></span>
+                <span id="modal-export-date" style="font-size: 0.85rem; color: var(--text-muted); font-family: 'JetBrains Mono', monospace;"></span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Inject JSON array of sessions
+        const sessions = /*__SESSIONS_DATA__*/[];
+
+        // Global Filters State
+        let filterSource = 'all';
+        let filterMode = 'all';
+        let searchTimeout = null;
+
+        // Init App
+        window.addEventListener('DOMContentLoaded', () => {
+            initStats();
+            applyFiltersAndSort();
+        });
+
+        function initStats() {
+            document.getElementById('stat-total').textContent = sessions.length;
+            document.getElementById('stat-claude').textContent = sessions.filter(s => s.source === 'Claude').length;
+            document.getElementById('stat-codex').textContent = sessions.filter(s => s.source === 'Codex').length;
+            document.getElementById('total-count').textContent = sessions.length;
+        }
+
+        function setSource(src) {
+            filterSource = src;
+            document.querySelectorAll('.source-buttons .btn-select').forEach(btn => btn.classList.remove('active'));
+            if (src === 'all') document.getElementById('btn-src-all').classList.add('active');
+            else if (src === 'Claude') document.getElementById('btn-src-claude').classList.add('active');
+            else if (src === 'Codex') document.getElementById('btn-src-codex').classList.add('active');
+            applyFiltersAndSort();
+        }
+
+        function setMode(mode) {
+            filterMode = mode;
+            document.querySelectorAll('.mode-buttons .btn-select').forEach(btn => btn.classList.remove('active'));
+            if (mode === 'all') document.getElementById('btn-mode-all').classList.add('active');
+            else if (mode === 'Clean') document.getElementById('btn-mode-clean').classList.add('active');
+            else if (mode === 'Audit') document.getElementById('btn-mode-audit').classList.add('active');
+            applyFiltersAndSort();
+        }
+
+        function debounceSearch() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                applyFiltersAndSort();
+            }, 300);
+        }
+
+        function applyFiltersAndSort() {
+            const query = document.getElementById('search-input').value;
+            const sortVal = document.getElementById('sort-select').value;
+            const minMsgs = parseInt(document.getElementById('min-msgs-input').value) || 0;
+            const dateFrom = document.getElementById('date-from-input').value;
+            const dateTo = document.getElementById('date-to-input').value;
+
+            const isFullText = document.getElementById('chk-fulltext').checked;
+            const isRegex = document.getElementById('chk-regex').checked;
+            const isCaseSensitive = document.getElementById('chk-case').checked;
+
+            let filtered = sessions.filter(s => {
+                // AI Source filter
+                if (filterSource !== 'all' && s.source !== filterSource) return false;
+                
+                // Export Mode filter
+                if (filterMode !== 'all' && s.mode !== filterMode) return false;
+                
+                // Message Count filter
+                if (s.userMsgs < minMsgs) return false;
+
+                // Date Filter
+                if (dateFrom) {
+                    const fromDate = new Date(dateFrom);
+                    const exportDate = new Date(s.exported);
+                    if (exportDate < fromDate) return false;
+                }
+                if (dateTo) {
+                    const toDate = new Date(dateTo);
+                    const exportDate = new Date(s.exported);
+                    if (exportDate > toDate) return false;
+                }
+
+                // Text Search Filter
+                if (query.trim() !== '') {
+                    const targetText = isFullText ? s.content : (s.session + ' ' + s.preview);
+                    
+                    if (isRegex) {
+                        try {
+                            const regexFlags = isCaseSensitive ? '' : 'i';
+                            const re = new RegExp(query, regexFlags);
+                            return re.test(targetText);
+                        } catch (e) {
+                            // Invalid regex, fall back to simple check or just ignore errors
+                            return false;
+                        }
+                    } else {
+                        const needle = isCaseSensitive ? query : query.toLowerCase();
+                        const haystack = isCaseSensitive ? targetText : targetText.toLowerCase();
+                        return haystack.includes(needle);
+                    }
+                }
+
+                return true;
+            });
+
+            // Sorting
+            filtered.sort((a, b) => {
+                if (sortVal === 'date-desc') {
+                    return new Date(b.exported).getTime() - new Date(a.exported).getTime();
+                } else if (sortVal === 'date-asc') {
+                    return new Date(a.exported).getTime() - new Date(b.exported).getTime();
+                } else if (sortVal === 'msgs-desc') {
+                    return (b.userMsgs + b.assistantMsgs) - (a.userMsgs + a.assistantMsgs);
+                } else if (sortVal === 'size-desc') {
+                    return b.fileSize - a.fileSize;
+                }
+                return 0;
+            });
+
+            renderGrid(filtered, query, isRegex, isCaseSensitive);
+        }
+
+        function renderGrid(data, query, isRegex, isCaseSensitive) {
+            const grid = document.getElementById('sessions-grid');
+            document.getElementById('filtered-count').textContent = data.length;
+
+            if (data.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state">
+                        <h4>No sessions found</h4>
+                        <p>Try adjusting your search query or filters.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = data.map(s => {
+                const totalMsgs = s.userMsgs + s.assistantMsgs;
+                const sizeKB = (s.fileSize / 1024).toFixed(1);
+                
+                // Truncate session title to fit nicely
+                const titleLabel = s.session.length > 50 ? s.session.slice(0, 47) + '...' : s.session;
+
+                return `
+                    <div class="session-card" onclick="openSession('${s.fileName}')">
+                        <div class="card-top">
+                            <span class="source-tag tag-${s.source.toLowerCase()}">
+                                ${s.source === 'Claude' ? '🤖' : '⚡'} ${s.source}
+                            </span>
+                            <div class="card-meta-right">
+                                <span class="meta-badge">${s.mode}</span>
+                                <span class="meta-badge">${sizeKB} KB</span>
+                            </div>
+                        </div>
+                        <h4 class="session-title">${titleLabel}</h4>
+                        <p class="session-preview">${escapeHtml(s.preview)}</p>
+                        <div class="card-bottom">
+                            <div class="card-stats">
+                                <span>👤 ${s.userMsgs} user</span>
+                                <span>🤖 ${s.assistantMsgs} assistant</span>
+                                ${s.toolCalls > 0 ? `<span>🔧 ${s.toolCalls} tools</span>` : ''}
+                            </div>
+                            <span class="card-date">${s.exported}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function escapeHtml(str) {
+            return str
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        function openSession(fileName) {
+            const s = sessions.find(item => item.fileName === fileName);
+            if (!s) return;
+
+            document.getElementById('modal-session-title').textContent = s.session;
+            document.getElementById('modal-session-subtitle').textContent = `File: ${s.fileName} | Mode: ${s.mode}`;
+            
+            const query = document.getElementById('search-input').value.trim();
+            const isRegex = document.getElementById('chk-regex').checked;
+            const isCaseSensitive = document.getElementById('chk-case').checked;
+
+            let bodyHtml = escapeHtml(s.content);
+
+            // Highlight search query
+            if (query !== '') {
+                try {
+                    let re;
+                    if (isRegex) {
+                        const flags = isCaseSensitive ? 'g' : 'gi';
+                        re = new RegExp(`(${query})`, flags);
+                    } else {
+                        // Escape regex characters for safe match
+                        const escapedQuery = query.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+                        const flags = isCaseSensitive ? 'g' : 'gi';
+                        re = new RegExp(`(${escapedQuery})`, flags);
+                    }
+                    bodyHtml = bodyHtml.replace(re, '<span class="highlight">$1</span>');
+                } catch (e) {
+                    // Ignore regex errors in highlighting
+                }
+            }
+
+            document.getElementById('modal-content-body').innerHTML = bodyHtml;
+            document.getElementById('modal-file-size').textContent = `Size: ${(s.fileSize / 1024).toFixed(1)} KB`;
+            document.getElementById('modal-export-date').textContent = `Exported: ${s.exported}`;
+
+            document.getElementById('viewer-modal').classList.add('open');
+        }
+
+        function closeModal() {
+            document.getElementById('viewer-modal').classList.remove('open');
+        }
+    </script>
+</body>
+</html>

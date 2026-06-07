@@ -1,0 +1,7 @@
+{
+  "cleanUrls": true,
+  "rewrites": [
+    { "source": "/", "destination": "/recent_exports_dashboard.html" },
+    { "source": "/guide", "destination": "/huong_dan_su_dung.html" }
+  ]
+}

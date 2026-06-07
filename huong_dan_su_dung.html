@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ACE Exporter — Hướng Dẫn Sử Dụng & Tài Liệu Kỹ Thuật</title>
+    <meta name="description" content="Hướng dẫn sử dụng và tài liệu kỹ thuật chi tiết dành cho phần mở rộng ACE Exporter trên VS Code.">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@400;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --card-bg: rgba(17, 24, 39, 0.7);
+            --sidebar-bg: rgba(15, 23, 42, 0.85);
+            --primary: #6366f1;
+            --primary-glow: rgba(99, 102, 241, 0.15);
+            --secondary: #a855f7;
+            --accent: #06b6d4;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --border: rgba(255, 255, 255, 0.08);
+            --border-hover: rgba(99, 102, 241, 0.4);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.6;
+            display: flex;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(at 10% 20%, rgba(99, 102, 241, 0.1) 0px, transparent 50%),
+                radial-gradient(at 90% 80%, rgba(168, 85, 247, 0.08) 0px, transparent 50%);
+            background-attachment: fixed;
+        }
+
+        /* Sidebar Navigation */
+        aside {
+            width: 280px;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            background: var(--sidebar-bg);
+            backdrop-filter: blur(16px);
+            border-right: 1px solid var(--border);
+            padding: 2.5rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            z-index: 100;
+        }
+
+        .logo-section h2 {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800;
+            font-size: 1.5rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-links {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .nav-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            display: block;
+            transition: var(--transition);
+        }
+
+        .nav-links a:hover, .nav-links a.active {
+            color: var(--text-main);
+            background: rgba(255, 255, 255, 0.05);
+            border-left: 3px solid var(--primary);
+            padding-left: 1.2rem;
+        }
+
+        .sidebar-footer {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-align: center;
+        }
+
+        /* Main Content */
+        main {
+            margin-left: 280px;
+            flex: 1;
+            padding: 3rem 4rem;
+            max-width: 1200px;
+        }
+
+        header {
+            margin-bottom: 3.5rem;
+        }
+
+        h1 {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            letter-spacing: -0.5px;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            max-width: 800px;
+        }
+
+        section {
+            margin-bottom: 5rem;
+            scroll-margin-top: 3rem;
+        }
+
+        h2 {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        p {
+            margin-bottom: 1.2rem;
+            color: var(--text-muted);
+        }
+
+        strong {
+            color: var(--text-main);
+        }
+
+        /* Cards Style */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.75rem;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            border-color: var(--border-hover);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3), 0 0 15px var(--primary-glow);
+        }
+
+        .card h3 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.25rem;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .card p {
+            font-size: 0.9rem;
+            margin: 0;
+        }
+
+        /* Interactive Simulator */
+        .simulator-container {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            margin: 2rem 0;
+        }
+
+        .sim-tabs {
+            display: flex;
+            background: rgba(0, 0, 0, 0.2);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .sim-tab {
+            padding: 1rem 1.5rem;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .sim-tab.active {
+            color: var(--primary);
+            background: rgba(255, 255, 255, 0.02);
+            border-bottom: 2px solid var(--primary);
+        }
+
+        .sim-content {
+            padding: 1.5rem;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.85rem;
+            max-height: 400px;
+            overflow-y: auto;
+            background: rgba(10, 15, 25, 0.5);
+        }
+
+        .sim-line {
+            margin-bottom: 0.75rem;
+            padding: 0.5rem 0.75rem;
+            border-radius: 6px;
+            border-left: 3px solid transparent;
+        }
+
+        .sim-user {
+            background: rgba(99, 102, 241, 0.05);
+            border-left-color: var(--primary);
+        }
+
+        .sim-assistant {
+            background: rgba(168, 85, 247, 0.05);
+            border-left-color: var(--secondary);
+        }
+
+        .sim-tool {
+            background: rgba(6, 182, 212, 0.05);
+            border-left-color: var(--accent);
+        }
+
+        .sim-commentary {
+            background: rgba(245, 158, 11, 0.05);
+            border-left-color: #f59e0b;
+        }
+
+        .sim-tag {
+            font-weight: bold;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            margin-right: 0.5rem;
+        }
+
+        .sim-tag.user { color: var(--primary); }
+        .sim-tag.assistant { color: var(--secondary); }
+        .sim-tag.tool { color: var(--accent); }
+        .sim-tag.commentary { color: #f59e0b; }
+
+        /* Configuration Generator */
+        .config-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        @media (max-width: 900px) {
+            .config-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .config-form {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            padding: 1.5rem;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .form-group label {
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .form-group select, .form-group input[type="text"], .form-group input[type="number"] {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 0.75rem;
+            border-radius: 8px;
+            outline: none;
+            transition: var(--transition);
+        }
+
+        .form-group select:focus, .form-group input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 8px rgba(99, 102, 241, 0.2);
+        }
+
+        .form-row-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            cursor: pointer;
+            font-size: 0.9rem;
+            user-select: none;
+        }
+
+        .form-row-checkbox input {
+            cursor: pointer;
+            accent-color: var(--primary);
+            width: 18px;
+            height: 18px;
+        }
+
+        /* Code Terminal */
+        .code-container {
+            position: relative;
+            background: #060913;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+
+        .code-header {
+            background: rgba(255, 255, 255, 0.02);
+            padding: 0.6rem 1.2rem;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .code-body {
+            padding: 1.2rem;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.85rem;
+            overflow-x: auto;
+            color: #d1d5db;
+        }
+
+        .copy-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 0.3rem 0.6rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.75rem;
+            transition: var(--transition);
+        }
+
+        .copy-btn:hover {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        /* Utilities */
+        .highlight-accent {
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        .highlight-primary {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .highlight-secondary {
+            color: var(--secondary);
+            font-weight: 600;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 2rem 0;
+            background: var(--card-bg);
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
+        th, td {
+            padding: 1rem 1.25rem;
+            text-align: left;
+        }
+
+        th {
+            background: rgba(255, 255, 255, 0.02);
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            font-size: 0.95rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        td {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            aside {
+                display: none; /* Hide sidebar on small mobile, simplified layout */
+            }
+            main {
+                margin-left: 0;
+                padding: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar Navigation -->
+    <aside>
+        <div class="logo-section">
+            <h2>⚡ ACE Exporter</h2>
+            <ul class="nav-links">
+                <li><a href="#tong-quan" class="active" id="link-tong-quan">1. Tổng Quan</a></li>
+                <li><a href="#cai-dat" id="link-cai-dat">2. Cài Đặt</a></li>
+                <li><a href="#tinh-nang" id="link-tinh-nang">3. Tính Năng & Chế Độ</a></li>
+                <li><a href="#cau-lenh" id="link-cau-lenh">4. Lệnh VS Code</a></li>
+                <li><a href="#cau-hinh" id="link-cau-hinh">5. Bộ Tạo Cấu Hình</a></li>
+                <li><a href="#khac-phuc" id="link-khac-phuc">6. Khắc Phục Lỗi</a></li>
+            </ul>
+        </div>
+        <div class="sidebar-footer">
+            <p>Phiên bản 1.1.0</p>
+            <p>MIT License © 2026</p>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main>
+        <header>
+            <h1 id="main-title">Tài Liệu Hướng Dẫn & Cấu Hình ACE Exporter</h1>
+            <p class="subtitle">Chào mừng bạn đến với tài liệu hướng dẫn vận hành hệ thống xuất log hội thoại **ACE Exporter** dành cho Codex, Claude Code và AWS Kiro.</p>
+        </header>
+
+        <!-- Section 1: Tổng Quan -->
+        <section id="tong-quan">
+            <h2>1. Tổng Quan Về Hệ Thống</h2>
+            <p>**ACE Exporter** (Antigravity Chat Exporter) là một phần mở rộng (`VS Code Extension`) chuyên dụng được thiết kế để giải quyết nhu cầu lưu trữ, phân tích và kiểm toán (`audit`) các phiên đối thoại giữa nhà phát triển và các trợ lý AI.</p>
+            <p>Thay vì lưu trữ dưới dạng nhật ký thô (`JSONL`/`JSON`), hệ thống tự động phát hiện, trích xuất cấu trúc và biên dịch thông minh sang tài liệu `Markdown` chất lượng cao, giúp định dạng dễ đọc và lưu giữ dấu vết mã nguồn tiện lợi.</p>
+            
+            <div class="cards-grid">
+                <div class="card">
+                    <h3>🤖 Claude Code Support</h3>
+                    <p>Hỗ trợ đầy đủ các dự án Claude Code bằng cách phân tích tập tin log trong thư mục `.claude/projects`. Tách biệt tin nhắn văn bản và các sự kiện gọi công cụ.</p>
+                </div>
+                <div class="card">
+                    <h3>⚡ OpenAI Codex Support</h3>
+                    <p>Khả năng phân tích sâu dòng nhật ký Codex, lưu vết các hàm gọi (`function_call`), dữ liệu lập trình viên, và lời bình của trợ lý AI.</p>
+                </div>
+                <div class="card">
+                    <h3>🪄 AWS Kiro Support</h3>
+                    <p>Tương thích hoàn hảo với cấu trúc log của Kiro thông qua cả kiểu bao dữ liệu phẳng và phân cấp lồng nhau.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: Cài Đặt -->
+        <section id="cai-dat">
+            <h2>2. Hướng Dẫn Cài Đặt</h2>
+            <p>Để cài đặt và chạy thử nghiệm phần mở rộng trên môi trường VS Code cục bộ của bạn, vui lòng làm theo các bước dưới đây:</p>
+            
+            <div class="code-container">
+                <div class="code-header">
+                    <span>Terminal - Cài đặt dependencies và đóng gói</span>
+                    <button class="copy-btn" onclick="copyCode(this, 'install-code')">Copy</button>
+                </div>
+                <pre class="code-body" id="install-code"># 1. Cài đặt các thư viện phụ thuộc (node_modules)
+npm install
+
+# 2. Biên dịch TypeScript sang JavaScript
+npm run compile
+
+# 3. Đóng gói mã nguồn thành file bundle duy nhất bằng esbuild
+npm run bundle</pre>
+            </div>
+            <p>Sau khi đóng gói thành công, bạn có thể bấm phím <span class="highlight-primary">F5</span> trong VS Code. Một cửa sổ VS Code mới (Extension Development Host) sẽ khởi chạy với tính năng ACE Exporter đã được kích hoạt hoàn toàn.</p>
+        </section>
+
+        <!-- Section 3: Tính Năng & Chế Độ -->
+        <section id="tinh-nang">
+            <h2>3. Tính Năng Xuất & Mô Phỏng Lọc Dữ Liệu</h2>
+            <p>ACE Exporter cung cấp hai chế độ xuất nhật ký chính nhằm phục vụ các mục đích sử dụng khác nhau:</p>
+            <ul>
+                <li><strong>Chế độ Clean (Mặc định)</strong>: Chỉ xuất các tin nhắn đối thoại thuần túy của Người dùng (`User`) và Trợ lý AI (`Assistant`), phù hợp cho việc đọc hiểu nhanh.</li>
+                <li><strong>Chế độ Audit (Kiểm toán)</strong>: Giữ lại toàn bộ dữ liệu gồm các chỉ dẫn hệ thống (`system`/`developer`), các lượt AI tự động gọi lệnh/chạy tool (`tool_use` / `tool_result`), và các bình luận nội bộ để nhà phát triển theo dõi chi tiết luồng xử lý lỗi của AI.</li>
+            </ul>
+
+            <!-- Simulator Tab -->
+            <div class="simulator-container">
+                <div class="sim-tabs">
+                    <button class="sim-tab active" onclick="switchSim(this, 'clean')">Chế độ Clean</button>
+                    <button class="sim-tab" onclick="switchSim(this, 'audit')">Chế độ Audit (Đầy đủ)</button>
+                </div>
+                <div class="sim-content" id="sim-display">
+                    <!-- Default Clean Mode Code -->
+                    <div class="sim-line sim-user"><span class="sim-tag user">👤 User</span> Tìm tất cả tệp có đuôi .ts trong thư mục src.</div>
+                    <div class="sim-line sim-assistant"><span class="sim-tag assistant">🤖 Assistant</span> Để tìm các tệp .ts trong thư mục src, tôi sẽ sử dụng công cụ liệt kê thư mục. Dưới đây là danh sách các tệp tìm thấy: ...</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 4: Lệnh VS Code -->
+        <section id="cau-lenh">
+            <h2>4. Các Câu Lệnh & Phím Tắt Khởi Chạy</h2>
+            <p>Mở bảng lệnh của VS Code bằng tổ hợp phím <kbd>Ctrl+Shift+P</kbd> (Windows) hoặc <kbd>Cmd+Shift+P</kbd> (macOS) và chọn các lệnh sau:</p>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Tên lệnh (Command Title)</th>
+                        <th>Mã Lệnh (VS Code Command)</th>
+                        <th>Chức năng chi tiết</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Export Chat Session...</strong></td>
+                        <td>`ace.exportChat`</td>
+                        <td>Khởi động luồng chọn thủ công: Nguồn log -> Tệp log trong lịch sử -> Chế độ Clean/Audit.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Export Latest Session (Quick)</strong></td>
+                        <td>`ace.exportLatest`</td>
+                        <td>Xuất nhanh phiên làm việc mới nhất dựa trên các cài đặt mặc định (phím tắt trên thanh trạng thái).</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Open Output Folder</strong></td>
+                        <td>`ace.openOutputFolder`</td>
+                        <td>Mở trực tiếp thư mục tự động lưu trữ file Markdown của bạn bằng trình duyệt file hệ thống.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Show Status</strong></td>
+                        <td>`ace.showStatus`</td>
+                        <td>Hiển thị trạng thái các thiết lập mặc định hiện tại lên bảng điều khiển Output của VS Code.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Section 5: Bộ Tạo Cấu Hình Trực Quan -->
+        <section id="cau-hinh">
+            <h2>5. Bộ Tạo Mã Cấu Hình Cài Đặt (Live Configuration Generator)</h2>
+            <p>Sử dụng công cụ trực quan dưới đây để thiết lập các thông số hoạt động của ACE Exporter theo mong muốn của bạn. Mã JSON cấu hình tương ứng ở cột bên phải sẽ tự động cập nhật trong thời gian thực.</p>
+
+            <div class="config-grid">
+                <!-- Form Inputs -->
+                <div class="config-form">
+                    <div class="form-group">
+                        <label for="cfg-source">Nguồn log mặc định (defaultSource)</label>
+                        <select id="cfg-source" onchange="updateConfig()">
+                            <option value="claude" selected>Claude Code</option>
+                            <option value="codex">OpenAI Codex</option>
+                            <option value="kiro">AWS Kiro</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="cfg-mode">Chế độ xuất mặc định (defaultMode)</label>
+                        <select id="cfg-mode" onchange="updateConfig()">
+                            <option value="clean" selected>Clean (Mặc định)</option>
+                            <option value="audit">Audit (Kiểm toán)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="cfg-limit">Giới hạn quét file (sessionLimit)</label>
+                        <input type="number" id="cfg-limit" min="5" max="500" value="50" oninput="updateConfig()">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="cfg-folder">Thư mục lưu tự động (outputFolder)</label>
+                        <input type="text" id="cfg-folder" placeholder="Ví dụ: C:\Users\ExportLogs" value="" oninput="updateConfig()">
+                    </div>
+
+                    <label class="form-row-checkbox">
+                        <input type="checkbox" id="cfg-autosave" onchange="updateConfig()">
+                        Tự động lưu file không qua tab tạm (autoSave)
+                    </label>
+
+                    <div class="form-group">
+                        <label for="cfg-maxchars">Số ký tự tool output tối đa (toolOutputMaxChars)</label>
+                        <input type="number" id="cfg-maxchars" min="200" max="50000" value="2000" oninput="updateConfig()">
+                    </div>
+                </div>
+
+                <!-- Live Preview Code -->
+                <div>
+                    <div class="code-container" style="height: 100%; margin: 0;">
+                        <div class="code-header">
+                            <span>settings.json (Dán vào cài đặt VS Code)</span>
+                            <button class="copy-btn" onclick="copyCode(this, 'config-preview')">Copy JSON</button>
+                        </div>
+                        <pre class="code-body" id="config-preview" style="height: calc(100% - 35px); overflow-y: auto;"></pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 6: Khắc Phục Lỗi -->
+        <section id="khac-phuc">
+            <h2>6. Khắc Phục Các Sự Cố Thường Gặp</h2>
+            <p>Dưới đây là một số vấn đề thường gặp và cách tự giải quyết nhanh:</p>
+            <ul>
+                <li><strong>Lỗi: "No session logs found"</strong>: Đảm bảo các tool AI tương ứng đã chạy và ghi log. Hãy kiểm tra các thư mục mặc định có tồn tại tập tin `.json`/`.jsonl` nào không:
+                  <br>- Claude Code: `~/.claude/projects`
+                  <br>- OpenAI Codex: `~/.codex/sessions`
+                  <br>- AWS Kiro: `~/.kiro/sessions`
+                </li>
+                <li><strong>File xuất bị cắt bớt dữ liệu Tool Output</strong>: Điều này do tham số `toolOutputMaxChars` giới hạn ký tự (mặc định 2000) để tối ưu hóa hiệu năng mở file của VS Code. Bạn có thể tăng tham số này lên trong phần cài đặt nếu muốn xem toàn bộ.</li>
+                <li><strong>Auto-save không hoạt động</strong>: Đảm bảo bạn đã tick chọn `autoSave: true` và nhập đúng đường dẫn thư mục tồn tại trên ổ cứng tại cấu hình `outputFolder`.</li>
+            </ul>
+        </section>
+    </main>
+
+    <script>
+        // Copy Code to Clipboard with micro-animation
+        function copyCode(btn, elementId) {
+            const codeText = document.getElementById(elementId).innerText;
+            navigator.clipboard.writeText(codeText).then(() => {
+                const oldText = btn.innerText;
+                btn.innerText = 'Copied! ✓';
+                btn.style.background = '#10b981';
+                btn.style.borderColor = '#10b981';
+                setTimeout(() => {
+                    btn.innerText = oldText;
+                    btn.style.background = '';
+                    btn.style.borderColor = '';
+                }, 1500);
+            });
+        }
+
+        // Simulating clean vs audit mode log structure
+        const simData = {
+            clean: `
+<div class="sim-line sim-user"><span class="sim-tag user">👤 User</span> Tìm tất cả tệp có đuôi .ts trong thư mục src.</div>
+<div class="sim-line sim-assistant"><span class="sim-tag assistant">🤖 Assistant</span> Để tìm các tệp .ts trong thư mục src, tôi sẽ sử dụng công cụ liệt kê thư mục. Dưới đây là danh sách các tệp tìm thấy: ...</div>
+            `,
+            audit: `
+<div class="sim-line sim-user"><span class="sim-tag user">👤 User</span> Tìm tất cả tệp có đuôi .ts trong thư mục src.</div>
+<div class="sim-line sim-commentary"><span class="sim-tag commentary">💬 Commentary</span> AI đang suy nghĩ: Cần tìm kiếm file typescript trong folder src. Sử dụng công cụ list_dir.</div>
+<div class="sim-line sim-tool"><span class="sim-tag tool">🔧 Tool Call</span> <strong>list_dir</strong> { "DirectoryPath": "src/" }</div>
+<div class="sim-line sim-tool"><span class="sim-tag tool">🔧 Tool Output</span> [ { "name": "extension.ts", "isDir": false }, { "name": "types/index.ts", "isDir": false } ]</div>
+<div class="sim-line sim-assistant"><span class="sim-tag assistant">🤖 Assistant</span> Để tìm các tệp .ts trong thư mục src, tôi sẽ sử dụng công cụ liệt kê thư mục. Dưới đây là danh sách các tệp tìm thấy: ...</div>
+            `
+        };
+
+        function switchSim(btn, mode) {
+            document.querySelectorAll('.sim-tab').forEach(tab => tab.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById('sim-display').innerHTML = simData[mode].trim();
+        }
+
+        // Live Config JSON Generator
+        function updateConfig() {
+            const source = document.getElementById('cfg-source').value;
+            const mode = document.getElementById('cfg-mode').value;
+            const limit = parseInt(document.getElementById('cfg-limit').value) || 50;
+            const folder = document.getElementById('cfg-folder').value;
+            const autosave = document.getElementById('cfg-autosave').checked;
+            const maxchars = parseInt(document.getElementById('cfg-maxchars').value) || 2000;
+
+            const configObj = {
+                "aceExporter.defaultSource": source,
+                "aceExporter.defaultMode": mode,
+                "aceExporter.sessionLimit": limit,
+                "aceExporter.outputFolder": folder,
+                "aceExporter.autoSave": autosave,
+                "aceExporter.toolOutputMaxChars": maxchars
+            };
+
+            document.getElementById('config-preview').innerText = JSON.stringify(configObj, null, 4);
+        }
+
+        // Sidebar link highlight on scroll
+        window.addEventListener('DOMContentLoaded', () => {
+            updateConfig();
+            
+            const sections = document.querySelectorAll('section');
+            const navLinks = document.querySelectorAll('.nav-links a');
+
+            window.addEventListener('scroll', () => {
+                let current = '';
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    if (pageYOffset >= sectionTop - 120) {
+                        current = section.getAttribute('id');
+                    }
+                });
+
+                navLinks.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('href') === `#${current}`) {
+                        link.classList.add('active');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
